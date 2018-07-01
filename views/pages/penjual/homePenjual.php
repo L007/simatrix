@@ -136,7 +136,7 @@
         <br>
         <img src="resources/img/man.png" style="width: 190px; height: 180px;">
         <br>
-        <h3 style="color: white;">Penjual</h3>
+        <h3 style="color: white;">Admin Gudang</h3>
         <small class="label label-warning" style="color: white;"><?php echo $_SESSION['nama_user'];?></small>
         <br><br><br><br>
         <p style="color: white;">Selamat Datang Kembali , Selamat Bekerja Kembali</p>

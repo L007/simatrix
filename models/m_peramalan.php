@@ -3,24 +3,12 @@
 Class Peramalan{
 	
 	
-/*	public $id_produk;
-	public $nama_produk;
-	public $id_user;
-	public $jumlah_stok;
-	public $harga;
-	public $foto_produk;
-	public $deskripsi;*/
+
 	
 
-	function __construct(/*$id_produk,$nama_produk,$id_user,$jumlah_stok,$harga,$foto_produk,$deskripsi*/)
+	function __construct()
 	{
-		/*$this->id_produk=$id_produk;
-		$this->nama_produk=$nama_produk;
-		$this->id_user=$id_user;
-		$this->jumlah_stok=$jumlah_stok;
-		$this->harga=$harga;
-		$this->foto_produk=$foto_produk;
-		$this->deskripsi=$deskripsi;*/
+		
 
 	}
 	public static function showPeramalan($nama_produk){

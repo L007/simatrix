@@ -111,12 +111,18 @@
 						$x=1;
 						$hasilPeramalan=0;
 						$jumlah_terjual_bulanan=array();
+						$jumlah_terjual_bulanan_LS=array();
+						$jumlah_terjual_bulanan_LSR=array();
+						$jumlah_terjual_bulanan_LA=array();
+						$peramalanLS=array();
+						$peramalanLSR=array();
+						$peramalanLA=array();
 						
 
 
 
 						foreach ($posts as $item) { 
-							$chartData .="{ month: '".'2018-0'."$x',jumlah:".$item['jumlah_terjual']."},"; 
+							//$chartData .="{ month: '".'2018-0'."$x',jumlah:".$item['jumlah_terjual']."},"; 
 
 							$x++;
 
@@ -139,125 +145,189 @@
 							$i++;
 
 						} $chartData = substr($chartData,0,-2);
+						$jumlah_terjual_bulanan_LS = $jumlah_terjual_bulanan;
+						$jumlah_terjual_bulanan_LSR = $jumlah_terjual_bulanan;
+						$jumlah_terjual_bulanan_LA=$jumlah_terjual_bulanan;
+
+						
 						$panjangArray = sizeof($jumlah_terjual_bulanan);
-						if ($panjangArray>3) {
+						if ($panjangArray>=3) {
 							$n=3;
-							$a = $jumlah_terjual_bulanan[$panjangArray-1];
-							$b = $jumlah_terjual_bulanan[$panjangArray-2];
-							$c = $jumlah_terjual_bulanan[$panjangArray-3];
+
+							for ($i=0; $i < $n ; $i++) { 
+								$panjangArray = sizeof($jumlah_terjual_bulanan_LS);
+
+								$a_LS = $jumlah_terjual_bulanan_LS[$panjangArray-1];
+								$b_LS = $jumlah_terjual_bulanan_LS[$panjangArray-2];
+								$c_LS = $jumlah_terjual_bulanan_LS[$panjangArray-3];
+
+								$a_LSR = $jumlah_terjual_bulanan_LSR[$panjangArray-1];
+								$b_LSR = $jumlah_terjual_bulanan_LSR[$panjangArray-2];
+								$c_LSR = $jumlah_terjual_bulanan_LSR[$panjangArray-3];
+
+								$a_LA = $jumlah_terjual_bulanan_LA[$panjangArray-1];
+								$b_LA = $jumlah_terjual_bulanan_LA[$panjangArray-2];
+								$c_LA = $jumlah_terjual_bulanan_LA[$panjangArray-3];
 
 						//echo $a.", ".$b.", ".$c;
 
 							//========= perhitungan Linear Smoothing =========
-							$hasilLS = ($a*0.5)+($b*2/6)+($c*1/6);
+								$hasilLS = ($a_LS*0.5)+($b_LS*2/6)+($c_LS*1/6);
 							//================================================
 
 
 							//========= perhitungan Least Square Regression =========
 
-							$avg = ($a+$b+$c)/$n;
-							$summary = ($c*1)+($b*2)+($a*3);
-							$diff = $summary-((1+2+3)*$avg);
-							$ratio = (pow(1, $diff)+pow(2, $diff)+pow(3, $diff))-((pow(2, $diff))*3);
-							$value1= $diff/$ratio;
-							$value2=$avg-$value1*$ratio;
-							$hasilLSR =(1+$n)*$value1+$value2;
+								$avg = ($a_LSR+$b_LSR+$c_LSR)/$n;
+								$summary = ($c_LSR*1)+($b_LSR*2)+($a_LSR*3);
+								$diff = $summary-((1+2+3)*$avg);
+								$ratio = (pow(1, 2)+pow(2, 2)+pow(3, 2))-((pow(2, 2))*3);
+								$value1= $diff/$ratio;
+								$value2=$avg-$value1*$ratio;
+								$hasilLSR =(1+$n)*$value1+$value2;
 
-							//echo "forecast ".round($forecast);
-
-							// echo "avg = ".$avg;
-							// echo "summary = ".$summary;
-							// echo "diff = ".$diff;
-							//echo "ratio = ".$ratio;
+							
 
 
 							//=======================================================
 
 							//========= perhitungan Linear Approximation =========
-							$hasilLA = (($a-$c)/2)+$a;
+								$hasilLA = (($a_LA-$c_LA)/2)+$a_LA;
 							//=======================================================
 
-							$POA1 = $a/$hasilLS*100;
-							$POA2 = $a/$hasilLSR*100;
-							$POA3 = $a/$hasilLA*100;
+								/*$POA1 = 0;
+								$POA2 = 0;
+								$POA3 = 0;*/
 
+								$MAD1=0;
+								$MAD2=0;
+								$MAD3=0;
+
+								$MAPE1=0;
+								$MAPE2=0;
+								$MAPE3=0;
 							/*$error1 = $a-$hasilLS;
 							$error2 = $a-$hasilLSR;
 							$error3 = $a-$hasilLA;*/
+								# code...
+							$peramalanLS[$i] = $hasilLS;
+							$peramalanLSR[$i]=$hasilLSR;
+							$peramalanLA[$i]=$hasilLA; 
 
-
-
-						}
-						else{
-							$hasilLS=0;
-							$hasilLSR=0;
-							$hasilLA=0;
-
-							$POA1=0;
-							$POA2=0;
-							$POA3=0;
-
+							$jumlah_terjual_bulanan_LS[]=$hasilLS;
+							$jumlah_terjual_bulanan_LSR[]=$hasilLSR;
+							$jumlah_terjual_bulanan_LA[]=$hasilLA;
 						}
 
+								$MAD1=abs($jumlah_terjual_bulanan_LS[$panjangArray-3]-$peramalanLS[0]);
+								$MAD2=abs($jumlah_terjual_bulanan_LSR[$panjangArray-3]-$peramalanLSR[0]);
+								$MAD3=abs($jumlah_terjual_bulanan_LA[$panjangArray-3]-$peramalanLA[0]);
+
+								$MAPE1=($MAD1/$jumlah_terjual_bulanan_LS[$panjangArray-3])/1*100;
+								$MAPE2=($MAD2/$jumlah_terjual_bulanan_LSR[$panjangArray-3])/1*100;
+								$MAPE3=($MAD3/$jumlah_terjual_bulanan_LA[$panjangArray-3])/1*100;
 
 
-						?>
-
-
-
-					</table>
-				</div>
-
-				<div class="col-md-6">
-					<h1>Peramalan bulan depan</h1>
-					<table class="table" style="margin-top: 30px;">
-
-						<tr>
-
-							<th>No</th>
-							<th>Nama Metode</th>
-							<th>Hasil Peramalan</th>
-							<th>Percent of Accuracy (POA)</th>
-							
-
-						</tr>
-						<tr>
-							<td>1</td>
-							<td>Linear Smoothing</td>
-							<td><?php echo round($hasilLS)." pcs"; ?></td>
-							<td><?php echo round($POA1)."%"; ?></td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>Least Square Regression</td>
-							<td><?php echo round($hasilLSR)." pcs"; ?></td>
-							<td><?php echo round($POA2)."%"; ?></td>
-						</tr>
-						<tr>
-							<td>3</td>
-							<td>Linear Approximation</td>
-							<td><?php echo round($hasilLA)." pcs"; ?></td>
-							<td><?php echo round($POA3)."%"; ?></td>
-						</tr>
-						
+								// print $jumlah_terjual_bulanan_LSR[$panjangArray-3];
+								// print $peramalanLSR[2];
 
 
 
-					</table>
 
-					<div id="chartPeramalan" style="height: 250px;">
+							}
+							else{
 
+								$jumlah_terjual_bulanan_LS=0;
+								$jumlah_terjual_bulanan_LSR=0;
+								$jumlah_terjual_bulanan_LA=0; 
+
+								$peramalanLS=0;
+								$peramalanLSR=0;
+								$peramalanLA=0;
+
+								$hasilLS=0;
+								$hasilLSR=0;
+								$hasilLA=0;
+
+								$POA1=0;
+								$POA2=0;
+								$POA3=0;
+
+								$MAPE1=0;
+								$MAPE2=0;
+								$MAPE3=0;
+
+
+
+							}
+
+
+
+							?>
+
+
+
+						</table>
 					</div>
+
+					<div class="col-md-6">
+						<h1>Peramalan 3 bulan depan</h1>
+						<table class="table" style="margin-top: 30px;">
+
+							<tr>
+
+								<th>No</th>
+								<th>Nama Metode</th>
+								<th>Peramalan 1 </th>
+								<th>Peramalan 2 </th>
+								<th>Peramalan 3 </th>
+								<th>MAPE</th>
+
+
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Linear Smoothing</td>
+								<td><?php echo round($peramalanLS[0])." pcs"; ?></td>
+								<td><?php echo round($peramalanLS[1])." pcs"; ?></td>
+								<td><?php echo round($peramalanLS[2])." pcs"; ?></td>
+								<td><?php echo  ($MAPE1)."%"; ?></td>
+							</tr>
+							<tr>
+								<td>2</td>
+								<td>Least Square Regression</td>
+								<td><?php echo round($peramalanLSR[0])." pcs"; ?></td>
+								<td><?php echo round($peramalanLSR[1])." pcs"; ?></td>
+								<td><?php echo round($peramalanLSR[2])." pcs"; ?></td>
+								<td><?php echo  ($MAPE2)."%"; ?></td>
+							</tr>
+							<tr>
+								<td>3</td>
+								<td>Linear Approximation</td>
+								<td><?php echo round($peramalanLA[0])." pcs"; ?></td>
+								<td><?php echo round($peramalanLA[1])." pcs"; ?></td>
+								<td><?php echo round($peramalanLA[2])." pcs"; ?></td>
+								<td><?php echo  ($MAPE3)."%"; ?></td>
+							</tr>
+
+
+
+
+						</table>
+
+						<div id="chartPeramalan" style="height: 250px;">
+
+						</div>
 
 
 				<!-- 	<div id="donat" style="height: 250px;">
 
-					</div> -->
-				</div>
-				
+			</div> -->
+		</div>
 
-			</div>
-			<br><br><br>
+
+	</div>
+	<br><br><br>
 
 			<!-- <div class="col-md-4"><font color="blue" >
 				<h3>Hasil perhitungan peramalan bulan depan	: <?php echo round($hasilPeramalan)." pcs"; ?> </h3>
@@ -269,24 +339,33 @@
 	</body>
 	</html>
 	<script>
-	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 // later on
 
 new Morris.Line({
+	<?php $x=1;
+	for ($i=0; $i <sizeof($jumlah_terjual_bulanan_LS) ; $i++) { 
+		$chartData .="{ month: '".'2018-0'."$x',jumlah_LS:".round($jumlah_terjual_bulanan_LS[$i]).
+		",jumlah_LSR:".round($jumlah_terjual_bulanan_LSR[$i]).",jumlah_LA:".round($jumlah_terjual_bulanan_LA[$i])."},"; 
+		$x++;
+	} ?>
+
+
+	
   // ID of the element in which to draw the chart.
   element: 'chartPeramalan',
   // Chart data records -- each entry in this array corresponds to a point on
   // the chart.
   data: [
-   <?php echo $chartData."}"; ?>
+  <?php echo $chartData; ?>
   ],
   // The name of the data record attribute that contains x-values.
   xkey: 'month',
   // A list of names of data record attributes that contain y-values.
-  ykeys: ['jumlah'],
+  ykeys: ['jumlah_LS','jumlah_LSR','jumlah_LA'],
   // Labels for the ykeys -- will be displayed when you hover over the
   // chart.
-  labels: ['jumlah_terjual'],
+  labels: ['peramalanLS','peramalanLSR','peramalanLA'],
 
   xLabelFormat: function (x) { return months[x.getMonth()]; }
 });
@@ -300,4 +379,4 @@ new Morris.Line({
     {label: "Mail-Order Sales", value: 20}
   ]
 });*/
-	</script>
+</script>
